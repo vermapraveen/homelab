@@ -1,0 +1,28 @@
+- name: "setup k8s"
+  hosts: "k8sCommonOnUbuntu"
+  tasks:
+   - name: "add key"
+     apt_key:
+     url: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
+     state: present
+   - name: "add repo"
+     apt_repository:
+     repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+     state: present
+   - name: "update"
+     apt:
+       update_cache: yes
+       upgrade: 'yes'
+
+    - name: Disable SWAP in fstab since kubernetes can't work with swap enabled (2/2)
+      replace:
+        path: /etc/fstab
+        regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+        replace: '# \1'
+      when: kubernetes_installed is changed
+
+    - name: Disable SWAP since kubernetes can't work with swap enabled (1/2)
+      shell: |
+        swapoff -a
+      when: kubernetes_installed is changed
+

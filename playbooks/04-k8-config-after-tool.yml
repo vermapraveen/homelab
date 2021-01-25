@@ -1,0 +1,41 @@
+- name: "setup k8s"
+  hosts: "k8sCommonOnUbuntu"
+  tasks:
+  - name: "add overlay"
+    community.general.modprobe:
+      name: overlay
+      state: present
+  - name: "add br_netfilter"
+    community.general.modprobe:
+      name: br_netfilter
+      state: present
+  - name: "update kubernetes.conf"
+    copy:
+      content: "net.bridge.bridge-nf-call-ip6tables = 1
+      net.bridge.bridge-nf-call-iptables = 1
+      net.ipv4.ip_forward = 1"
+      dest: "/etc/sysctl.d/kubernetes.conf"
+      create: yes
+  - sysctl:
+      reload: yes
+  - name: Creates directory
+    file:
+      path: /etc/systemd/system/docker.service.d
+      state: directory
+      recurse: yes
+  - name: "create docker daemon json"
+    copy:
+      content: "{"exec-opts":["native.cgroupdriver=systemd"],"log-driver":"json-file","log-opts":{"max-size":"100m"},"storage-driver":"overlay2"}"
+      dest: "/etc/sysctl.d/kubernetes.conf"
+      create: yes
+  - name: force systemd to reread configs
+    ansible.builtin.systemd:
+      daemon_reload: yes
+  - name: restart docker
+    ansible.builtin.systemd:
+      state: restarted
+      name: docker
+  - name: enable docker
+    ansible.builtin.systemd:
+      name: docker
+      enabled: yes

@@ -1,0 +1,61 @@
+- name: "install and configure basic tools"
+  hosts: "k8sCommonOnUbuntu"
+  tasks:
+   - name: install docker.io
+     become: true
+     apt:
+       name: docker.io
+       update_cache: yes
+       state: present
+   - name: install apt-transport-https
+     become: true
+     apt:
+       name: apt-transport-https
+       update_cache: yes
+       state: present
+   - name: install curl
+     become: true
+     apt:
+       name: curl
+       update_cache: yes
+       state: present
+   - name: install wget
+     become: true
+     apt:
+       name: wget
+       update_cache: yes
+       state: present
+       
+   - name: install kubelet
+     become: true
+     apt:
+       name: kubelet
+       update_cache: yes
+       state: present
+    - name: Hold kubelet
+      dpkg_selections:
+        name: kubelet
+        selection: hold
+
+   - name: install kubeadm
+     become: true
+     apt:
+       name: kubeadm
+       update_cache: yes
+       state: present
+    - name: Hold kubeadm
+      dpkg_selections:
+        name: kubeadm
+        selection: hold
+
+   - name: install kubectl
+     become: true
+     apt:
+       name: kubectl
+       update_cache: yes
+       state: present
+    - name: Hold kubectl
+      dpkg_selections:
+        name: kubectl
+        selection: hold
+       
