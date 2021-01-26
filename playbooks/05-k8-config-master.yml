@@ -1,0 +1,44 @@
+- name: "setup k8s master"
+  hosts: "k8master"
+  become: true
+  tasks:
+  - debug: msg="{{ lookup('env','HOME') }}"
+
+  - name: pull kube images
+    command: kubeadm config images pull
+
+  - name: kubeadm reset
+    command: kubeadm reset
+
+  - name: initialize the cluster
+    command: kubeadm init --pod-network-cidr=192.168.0.50/16 >> cluster_initialized.txt
+    args:
+      chdir: $HOME
+      creates: cluster_initialized.txt
+    with_items:
+     - mkdir -p $HOME/.kube
+     - cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+     - chown "{{ ansible_effective_user_id }}":"{{ ansible_effective_group_id }}" $HOME/.kube/config
+
+  # - name: create .kube directory
+  #   file:
+  #     path: $HOME/.kube
+  #     state: directory
+  # - name: copy admin.conf to user's kube config
+  #   copy:
+  #     src: /etc/kubernetes/admin.conf
+  #     dest: $HOME/.kube/config
+  #     remote_src: yes
+      
+  # - name: Change kubeconfig file permission
+  #   file:
+  #     path: $HOME/.kube/config 
+  #     owner: "{{ ansible_effective_user_id }}"
+  #     group: "{{ ansible_effective_group_id }}"
+
+  - name: install Pod network
+    become: false
+    command: kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml >> pod_network_setup.txt
+    args:
+      chdir: $HOME
+      creates: pod_network_setup.txt
