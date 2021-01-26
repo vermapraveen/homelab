@@ -1,10 +1,11 @@
 - name: "get master token" 
-  hosts: "k8master"
+  hosts: k8master
   become: yes
-  gather_facts: false
   tasks:
     - name: get join command
-      shell: kubeadm token create --print-join-command
+      # shell: kubeadm token create --print-join-command
+      command: "kubeadm token create --kubeconfig /etc/kubernetes/admin.conf --print-join-command"
+
       register: join_command_raw
 
     - name: set join command
@@ -16,7 +17,7 @@
   become: yes
   tasks:
     - name: join cluster
-      shell: "{{ hostvars['master'].join_command }} >> node_joined.txt"
+      shell: "{{ hostvars[groups['k8master'] | last].join_command }} >> node_joined.txt"
       args:
         chdir: $HOME
         creates: node_joined.txt
