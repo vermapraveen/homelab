@@ -8,7 +8,7 @@ sudo apt -y install curl apt-transport-https
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 sudo apt update
-sudo apt -y install vim git curl wget kubelet kubeadm kubectl
+sudo apt -y install vim git curl dnsutils net-tools nmap wget kubelet kubeadm kubectl
 sudo apt -y autoremove
 sudo apt-mark hold kubelet kubeadm kubectl
 
@@ -25,14 +25,29 @@ EOF
 
 sudo sysctl --system
 
-
-
-
 sudo apt update
-sudo apt install -y curl gnupg2 software-properties-common apt-transport-https ca-certificates docker.io
-sudo mkdir -p /etc/systemd/system/docker.service.d
+sudo apt install -y curl gnupg2 software-properties-common apt-transport-https ca-certificates 
 
-sudo tee /etc/docker/daemon.json <<EOF
+sudo apt install resolvconf
+
+echo 'nameserver 8.8.8.8' | sudo tee -a /etc/resolvconf/resolv.conf.d/head
+echo 'nameserver 8.8.4.4' | sudo tee -a /etc/resolvconf/resolv.conf.d/head
+
+sudo systemctl start resolvconf.service
+sudo systemctl enable resolvconf.service
+sudo systemctl status resolvconf.service
+
+########## DOCKER START #########
+sudo apt-get update
+sudo apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+sudo apt-get update
+sudo apt -y autoremove
+sudo apt-get update && sudo apt-get install -y containerd.io=1.2.13-2 docker-ce=5:19.03.11~3-0~ubuntu-$(lsb_release -cs) docker-ce-cli=5:19.03.11~3-0~ubuntu-$(lsb_release -cs)
+sudo apt-mark hold docker-ce docker-ce-cli containerd.io
+sudo mkdir /etc/docker
+cat <<EOF | sudo tee /etc/docker/daemon.json
 {
   "exec-opts": ["native.cgroupdriver=systemd"],
   "log-driver": "json-file",
@@ -42,19 +57,20 @@ sudo tee /etc/docker/daemon.json <<EOF
   "storage-driver": "overlay2"
 }
 EOF
-
-# Start and enable Services
+sudo mkdir -p /etc/systemd/system/docker.service.d
 sudo systemctl daemon-reload 
 sudo systemctl restart docker
 sudo systemctl enable docker
+########## DOCKER   END #########
 
 # make sure that the br_netfilter module is loaded
 lsmod | grep br_netfilter
 sudo systemctl enable kubelet
 
-mkdir -p $HOME/.kube
-sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+# mkdir -p $HOME/.kube
+# sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+# sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
 ### On WORKER
-kubeadm join blue:6443 --token 4yih9o.4wodrw13fs38yi6u     --discovery-token-ca-cert-hash sha256:42e50623bdcc0e718aa62e62a14020014dd22163f0409e5baadbeb995706a6a8 
+sudo kubeadm join blue:6443 --token gd6prl.z5mjie1ev9blztos --discovery-token-ca-cert-hash sha256:5d2c8f2ca71ecc1f4acad7ae41072bc92c9eeb5c28b2465167a779e499195583

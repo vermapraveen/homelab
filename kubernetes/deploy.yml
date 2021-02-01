@@ -1,19 +1,35 @@
+# hello-kubernetes.custom-message.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-kubernetes-custom
+spec:
+  # type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: hello-kubernetes-custom
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-deployment
+  name: hello-kubernetes-custom
 spec:
+  replicas: 3
   selector:
     matchLabels:
-      app: nginx
-  replicas: 2 # tells deployment to run 2 pods matching the template
+      app: hello-kubernetes-custom
   template:
     metadata:
       labels:
-        app: nginx
+        app: hello-kubernetes-custom
     spec:
       containers:
-      - name: nginx
-        image: nginx:1.14.2
+      - name: hello-kubernetes
+        image: paulbouwer/hello-kubernetes:1.8
         ports:
-        - containerPort: 80
+        - containerPort: 8080
+        env:
+        - name: MESSAGE
+          value: I just deployed this on Kubernetes!

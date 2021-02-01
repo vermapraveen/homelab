@@ -5,3 +5,5 @@
 # ansible-playbook ./playbooks/04-k8-config-after-tool.yml -u pkv --ask-pass --ask-become-pass -i ./inventory/hosts
 # ansible-playbook ./playbooks/05-k8-config-master.yml -u pkv --ask-pass --ask-become-pass -i ./inventory/hosts
 ansible-playbook ./playbooks/06-k8-config-worker.yml -u pkv --ask-pass --ask-become-pass -i ./inventory/hosts
+
+kubectl exec --stdin --tty nginx-deployment-66b6c48dd5-2dhrp -- /bin/bash
