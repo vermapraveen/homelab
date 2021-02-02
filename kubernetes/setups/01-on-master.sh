@@ -1,5 +1,3 @@
-sudo systemctl reboot
-
 sudo apt update
 sudo apt -y upgrade
 
@@ -71,6 +69,9 @@ sudo apt update
 sudo apt -y install kubelet kubeadm kubectl 
 sudo apt-mark hold kubelet kubeadm kubectl
 sudo systemctl enable kubelet
+########## Install K8s END #########
+
+########## Setup K8s Start #########
 sudo kubeadm config images pull
 
 sudo kubeadm init --pod-network-cidr=192.168.0.50/16
@@ -82,7 +83,7 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
 kubectl taint nodes --all node-role.kubernetes.io/master-
 
-########## Install K8s END #########
+########## Setup K8s END #########
 
 
 ########## Verify #########

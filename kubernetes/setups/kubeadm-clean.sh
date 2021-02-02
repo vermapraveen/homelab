@@ -29,7 +29,7 @@ sudo apt-get purge docker-ce docker-ce-cli containerd.io
 sudo rm -rf /var/lib/docker
 
 
-sudo apt-get purge resolvconf
+sudo apt-get purge -y resolvconf
 
 sudo apt -y autoremove
 sudo rm /etc/sysctl.d/kubernetes.conf

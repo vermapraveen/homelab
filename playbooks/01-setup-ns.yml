@@ -1,0 +1,59 @@
+- name: "install and configure ns tool"
+  hosts: "ubuntu"
+  become: yes
+  tasks:
+  - name: install resolvconf
+    apt:
+      name: resolvconf
+      update_cache: yes
+      state: present
+ 
+  - name: does nameserver 8.8.8.8 added
+    shell: grep -c "^nameserver 8.8.8.8" /etc/resolvconf/resolv.conf.d/head || true
+    register: is_ns1_added
+ 
+  - name: does nameserver 8.8.4.4 added
+    shell: grep -c "^nameserver 8.8.4.4" /etc/resolvconf/resolv.conf.d/head || true
+    register: is_ns2_added
+
+  - name: Add 8.8.8.8 ns
+    ansible.builtin.lineinfile:
+      path: /etc/resolvconf/resolv.conf.d/head
+      line: nameserver 8.8.8.8
+    when: is_ns1_added.stdout == "0"
+
+  - name: Add 8.8.4.4 ns
+    ansible.builtin.lineinfile:
+      path: /etc/resolvconf/resolv.conf.d/head
+      line: nameserver 8.8.4.4
+    when: is_ns2_added.stdout == "0"
+  
+  - name: does /etc/resolve has been updated with nameserver 8.8.8.8
+    shell: grep -c "^nameserver 8.8.8.8" /etc/resolv.conf || true
+    register: is_ns1_reflects_in_resolv_conf
+    when: is_ns1_added.stdout == "1"
+
+  - name: does /etc/resolve has been updated with nameserver 8.8.4.4
+    shell: grep -c "^nameserver 8.8.4.4" /etc/resolv.conf || true
+    register: is_ns2_reflects_in_resolv_conf
+    when: is_ns2_added.stdout == "1"
+
+  - name: restart resolvconf.service
+    ansible.builtin.systemd:
+      state: restarted
+      name: resolvconf.service
+    when: is_ns1_added.stdout == "0" or is_ns2_added.stdout == "0" or is_ns1_reflects_in_resolv_conf.stdout == "0" or is_ns2_reflects_in_resolv_conf.stdout == "0"
+
+  - name: enable resolvconf.service
+    ansible.builtin.systemd:
+      name: resolvconf.service
+      enabled: yes
+    when: is_ns1_added.stdout == "0" or is_ns2_added.stdout == "0" or is_ns1_reflects_in_resolv_conf.stdout == "0" or is_ns2_reflects_in_resolv_conf.stdout == "0"
+
+  - name: Unconditionally reboot the machine with all defaults
+    reboot:
+    when: is_ns1_added.stdout == "0" or is_ns2_added.stdout == "0" or is_ns1_reflects_in_resolv_conf.stdout == "0" or is_ns2_reflects_in_resolv_conf.stdout == "0"
+  
+  - name: Test internet connectivity
+    shell: ping -c 1 www.google.com
+    ignore_errors: true

@@ -1,5 +1,3 @@
-sudo systemctl reboot
-
 sudo apt update
 sudo apt -y upgrade
 sudo systemctl reboot
