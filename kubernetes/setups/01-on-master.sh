@@ -15,7 +15,7 @@ sudo systemctl status resolvconf.service
 sudo systemctl reboot
 
 ########## Setup Node START #########
-sudo apt -y install curl vim git dnsutils net-tools nmap wget  gnupg2 software-properties-common apt-transport-https ca-certificates 
+sudo apt -y install curl git wget gnupg2 software-properties-common apt-transport-https ca-certificates 
 
 sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 sudo swapoff -a
@@ -40,8 +40,7 @@ sudo apt-get install -y apt-transport-https ca-certificates curl gnupg-agent sof
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 sudo apt-get update
-sudo apt -y autoremove
-sudo apt-get update && sudo apt-get install -y containerd.io=1.2.13-2 docker-ce=5:19.03.11~3-0~ubuntu-$(lsb_release -cs) docker-ce-cli=5:19.03.11~3-0~ubuntu-$(lsb_release -cs)
+sudo apt-get install -y containerd.io=1.2.13-2 docker-ce=5:19.03.11~3-0~ubuntu-$(lsb_release -cs) docker-ce-cli=5:19.03.11~3-0~ubuntu-$(lsb_release -cs)
 sudo apt-mark hold docker-ce docker-ce-cli containerd.io
 sudo mkdir /etc/docker
 cat <<EOF | sudo tee /etc/docker/daemon.json
@@ -66,6 +65,7 @@ sudo systemctl enable docker
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 sudo apt update
+
 sudo apt -y install kubelet kubeadm kubectl 
 sudo apt-mark hold kubelet kubeadm kubectl
 sudo systemctl enable kubelet
@@ -81,18 +81,19 @@ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
 kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
-kubectl taint nodes --all node-role.kubernetes.io/master-
+kubectl taint nodes node-role.kubernetes.io/master:NoSchedule-
 
 ########## Setup K8s END #########
 
 
 ########## Verify #########
 kubectl get nodes
-kubeadm token create --print-join-command
+#kubeadm token create --print-join-command
+#kubectl taint nodes blue node-role.kubernetes.io/master:NoSchedule-
 #kubectl taint nodes charlie node-role.kubernetes.io/master:NoSchedule-
 #kubectl taint nodes delta node-role.kubernetes.io/worker:NoSchedule-
 #kubectl taint nodes delta node.kubernetes.io/unreachable:NoExecute-
-kubectl describe node charlie | grep Taint
+kubectl describe nodes blue charlie delta | grep Taint
 # kubeadm join 192.168.0.27:6443 --token tl4mle.2cplb2lqvkdyfinj --discovery-token-ca-cert-hash sha256:b54d91ee19c68601cc97cdb9b58a21c0bcc67e015af0cae4c207c612004ee6c2 
 ########## Verify END #########
 

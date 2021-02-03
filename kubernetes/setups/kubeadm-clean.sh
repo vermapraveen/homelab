@@ -12,12 +12,12 @@ sudo kubectl delete node delta
 # + WORKER
 sudo iptables -F && sudo iptables -t nat -F && sudo iptables -t mangle -F && sudo iptables -X
 sudo ipvsadm -C
-sudo rm $HOME/.kube/config /etc/kubernetes/admin.conf
 sudo kubeadm reset
+sudo rm $HOME/.kube/config /etc/kubernetes/admin.conf
+sudo rm -rf ~/.kube
 
 sudo apt-get purge kubeadm kubectl kubelet kubernetes-cni kube*   
 
-sudo rm -rf ~/.kube
 
 sudo systemctl disable docker
 sudo systemctl stop docker
