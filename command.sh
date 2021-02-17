@@ -1,4 +1,6 @@
 # ansible -i ./inventory/hosts ubuntu -m ping -u pkv --ask-pass
+ansible-playbook ./playbooks/deploy-ssh.yml -i ./inventory/hosts -u pkv --ask-pass --ask-become-pass 
+
 # ansible-playbook ./playbooks/apt.yml -u pkv --ask-pass --ask-become-pass -i ./inventory/hosts
 # ansible-playbook ./playbooks/01-setup-ns.yml -u pkv --ask-pass --ask-become-pass -i ./inventory/hosts
 # ansible-playbook ./playbooks/02-k8-config.yml -u pkv --ask-pass --ask-become-pass -i ./inventory/hosts

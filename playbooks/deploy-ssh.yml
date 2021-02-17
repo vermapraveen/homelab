@@ -1,0 +1,62 @@
+- name: "setup users"
+  hosts: "ubuntu"
+  vars:
+    - divya_password: '$6$4ZF05qnhp/e.euo$.ar0wwcsIaIuTZCVjEV1JeWaVUs3i0/ETtZCSy1lLxQBQ/Q1zpFVYjvO0q9pG6awP2g41p5xxXb4tczgxKi5c1'
+    - pkv_password: '$6$RZh28Ba/i9XYbf$fnpXtRgajJpLvYcHrE7Oy2LyAiucYSqO8GKRW/f2V6lb9awAtkE1hmLdD9E4uZBg0YtSFEcsi71TTBN22s2r40'
+  become: true 
+  tasks: 
+  - name: Add a new user named divya
+    user:
+        name=divya
+        password={{ divya_password }}
+
+  - name: Add a new user named pkv
+    user:
+        name=pkv
+        password={{ pkv_password }}
+  
+  - name: Add pkv user to the sudoers
+    copy:
+        dest: "/etc/sudoers.d/pkv"
+        content: "pkv  ALL=(ALL)  NOPASSWD: ALL"
+
+  - name: Add divya user to the sudoers
+    copy:
+        dest: "/etc/sudoers.d/divya"
+        content: "divya  ALL=(ALL)  NOPASSWD: ALL"
+  
+  - name: Deploy SSH Key pkv
+    authorized_key: user=pkv
+                    key="{{ lookup('file', '/home/pkv/.ssh/id_rsa.pub') }}"
+                    state=present
+
+  - name: Deploy SSH Key divya
+    authorized_key: user=divya
+                    key="{{ lookup('file', '/home/pkv/.ssh/ansible.pub') }}"
+                    state=present
+ 
+  - name: Disable Password Authentication
+    lineinfile:
+          dest=/etc/ssh/sshd_config
+          regexp='^PasswordAuthentication'
+          line="PasswordAuthentication no"
+          state=present
+          backup=yes
+    notify:
+      - restart ssh
+ 
+  - name: Disable Root Login
+    lineinfile:
+          dest=/etc/ssh/sshd_config
+          regexp='^PermitRootLogin'
+          line="PermitRootLogin no"
+          state=present
+          backup=yes
+    notify:
+      - restart ssh
+
+  handlers:
+  - name: restart ssh
+    service:
+      name=sshd
+      state=restarted

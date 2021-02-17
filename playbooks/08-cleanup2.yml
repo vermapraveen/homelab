@@ -5,18 +5,25 @@
   - name: Reset all IPv4 iptables rules in all tables and allow all traffic
     shell: iptables -F && iptables -t nat -F && iptables -t mangle -F && iptables -X
 
+  - name: "Check if kubeadm is installed"    
+    package_facts:
+      manager: auto
+
   - name: kubeadm reset
     shell: kubeadm reset --force
+    when: "'kubeadm' in ansible_facts.packages"
 
   - name: disable docker
     ansible.builtin.systemd:
       name: docker  
       enabled: no
+    when: "'docker' in ansible_facts.packages"
 
   - name: stop docker
     ansible.builtin.systemd:
       name: docker  
       state: stopped 
+    when: "'docker' in ansible_facts.packages"
 
   - name: unhold packages
     shell: apt-mark unhold kubeadm kubectl kubelet kubernetes-cni  kube* docker-ce  docker-ce-cli  ontainerd.io resolvconf
@@ -55,4 +62,4 @@
       - /etc/sysctl.d/kubernetes.conf
 
   - name: Remove docker route
-    shell: route del -net 10.10.0.0 dev docker0
+    shell: ip route del 10.10.0.0 dev docker0
