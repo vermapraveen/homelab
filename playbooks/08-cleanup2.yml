@@ -2,12 +2,14 @@
   hosts: "k8sCommonOnUbuntu"
   become: true
   tasks:
-  - name: Reset all IPv4 iptables rules in all tables and allow all traffic
-    shell: iptables -F && iptables -t nat -F && iptables -t mangle -F && iptables -X
 
   - name: "Check if kubeadm is installed"    
     package_facts:
       manager: auto
+
+  - name: Reset all IPv4 iptables rules in all tables and allow all traffic
+    shell: iptables -F && iptables -t nat -F && iptables -t mangle -F && iptables -X
+    when: "'docker' in ansible_facts.packages"
 
   - name: kubeadm reset
     shell: kubeadm reset --force
@@ -27,6 +29,7 @@
 
   - name: unhold packages
     shell: apt-mark unhold kubeadm kubectl kubelet kubernetes-cni  kube* docker-ce  docker-ce-cli  ontainerd.io resolvconf
+    when: "'docker' in ansible_facts.packages"
 
   - name: Remove k8s packages
     apt:
@@ -42,11 +45,13 @@
         - resolvconf
       state: absent
       purge: yes
+    when: "'docker' in ansible_facts.packages"
 
   - name: Clean unwanted olderstuff
     apt:
       autoremove: yes
       purge: yes
+    when: "'docker' in ansible_facts.packages"
 
   - name: delete k8s and docker files and directories
     file:
@@ -60,6 +65,11 @@
       - /etc/systemd/system/docker.service.d
       - /var/lib/docker
       - /etc/sysctl.d/kubernetes.conf
+    when: "'docker' in ansible_facts.packages"
 
-  - name: Remove docker route
-    shell: ip route del 10.10.0.0 dev docker0
+  # - name: Remove docker route
+  #   shell: route del -net 10.10.0.0 dev docker0
+  #   # shell: route del -net 10.10.0.0 gw 0.0.0.0 netmask 255.255.255.240 dev docker0
+
+  - name: Unconditionally reboot the machine with all defaults
+    reboot:

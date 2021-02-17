@@ -5,6 +5,7 @@ metadata:
   name: hello-kubernetes2
 spec:
   type: LoadBalancer
+  loadBalancerIP: 192.168.0.75
   ports:
   - port: 80
     targetPort: 8080

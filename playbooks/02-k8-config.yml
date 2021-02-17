@@ -4,16 +4,25 @@
   tasks:
     - name: "add key"
       apt_key:
-        url: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
+        url: "{{item}}"
         state: present
+      with_items:
+      - https://packages.cloud.google.com/apt/doc/apt-key.gpg
+      - https://download.docker.com/linux/ubuntu/gpg
+
     - name: "add repo"
       apt_repository:
-        repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+        repo: "{{item}}"
         state: present
+      with_items:
+      - deb http://apt.kubernetes.io/ kubernetes-xenial main
+      - deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+
     - name: "update"
       apt:
         update_cache: yes
         upgrade: 'yes'
+
     - name: Disable SWAP in fstab since kubernetes can't work with swap enabled (2/2)
       replace:
         path: /etc/fstab
@@ -24,3 +33,108 @@
       shell: |
         swapoff -a
 
+    - name: "add overlay"
+      modprobe:
+        name: overlay
+        state: present
+
+    - name: "add br_netfilter"
+      modprobe:
+        name: br_netfilter
+        state: present
+
+    - name: ensure net.bridge.bridge-nf-call-ip6tables is set to 1
+      sysctl:
+        name: net.bridge.bridge-nf-call-ip6tables
+        value: 1
+        state: present
+
+    - name: ensure net.bridge.bridge-nf-call-iptables is set to 1
+      sysctl:
+        name: net.bridge.bridge-nf-call-iptables
+        value: 1
+        state: present
+
+    - name: ensure net.ipv4.ip_forward is set to 1
+      sysctl:
+        name: net.ipv4.ip_forward
+        value: 1
+        state: present
+
+    - name: create /etc/sysctl.d/kubernetes.conf
+      copy:
+        dest: "/etc/sysctl.d/kubernetes.conf"
+        content: |
+          net.bridge.bridge-nf-call-ip6tables = 1
+          net.bridge.bridge-nf-call-iptables = 1
+          net.ipv4.ip_forward = 1
+
+    - name: install packages
+      apt:
+        pkg:
+          - apt-transport-https 
+          - ca-certificates 
+          - wget
+          - nmap
+          - tcpdump
+          - net-tools
+          - curl 
+          - gnupg-agent 
+          - software-properties-common
+          - containerd.io
+          - docker-ce
+          - docker-ce-cli
+          - kubelet
+          - kubeadm
+          - kubectl
+
+    - name: Hold packages
+      dpkg_selections:
+        name: "{{item}}"
+        selection: hold
+      with_items:
+        - kubelet
+        - kubeadm 
+        - kubectl
+        - containerd.io
+        - docker-ce
+        - docker-ce-cli
+
+    - name: create /etc/docker/daemon.json
+      copy:
+        dest: "/etc/docker/daemon.json"
+        content: |
+          {
+            "exec-opts": ["native.cgroupdriver=systemd"],
+            "log-driver": "json-file",
+            "log-opts": {
+              "max-size": "100m"
+            },
+            "storage-driver": "overlay2",
+            "default-address-pools": [
+              {
+                "base": "10.10.0.0/16",
+                "size": 28
+              }
+            ]
+          }
+    - name: Creates directory
+      file:
+        path: /etc/systemd/system/docker.service.d
+        state: directory
+
+    - name: force systemd to reread configs
+      ansible.builtin.systemd:
+        daemon_reload: yes
+
+    - name: restart docker
+      ansible.builtin.systemd:
+        state: restarted
+        name: docker
+
+    - name: enable docker
+      ansible.builtin.systemd:
+        name: docker
+        enabled: yes
+    - name: Unconditionally reboot the machine with all defaults
+      reboot:

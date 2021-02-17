@@ -2,57 +2,36 @@
   hosts: "k8master"
   become: true
   tasks:
-  - debug: msg="{{ lookup('env','HOME') }}"
+    - name: pull kube images
+      shell: kubeadm config images pull
 
-  - name: pull kube images
-    shell: kubeadm config images pull
+    - name: initialize the cluster
+      shell: kubeadm init --control-plane-endpoint=blue.pkvnw >> cluster_initialized.txt
+      args:
+        chdir: /home/pkv
+        creates: cluster_initialized.txt
 
-  # - name: kubeadm reset
-  #   command: kubeadm reset
+    - name: create .kube directory
+      file:
+        path: /home/pkv/.kube
+        state: directory
+        mode: 0755
 
-  - name: initialize the cluster
-    shell: kubeadm init --pod-network-cidr=192.168.0.50/16 >> cluster_initialized.txt
-    args:
-      chdir: /home/pkv
-      creates: cluster_initialized.txt
-    # with_items:
-    #  - mkdir -p $HOME/.kube
-    #  - cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-    #  - chown "{{ ansible_effective_user_id }}":"{{ ansible_effective_group_id }}" $HOME/.kube/config
+    - name: copy admin.conf to user's kube config
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /home/pkv/.kube/config
+        remote_src: yes
 
-  - name: create .kube directory
-    file:
-      path: $HOME/.kube
-      state: directory
-      mode: 0755
+    - name: Change kubeconfig file permission
+      file:
+        path: /home/pkv/.kube/config 
+        owner: "{{ ansible_effective_user_id }}"
+        group: "{{ ansible_effective_group_id }}"
 
-  - shell: ls $HOME
-    register: shell_result1
-  - debug: msg="{{ shell_result1 }}"
-
-  - name: copy admin.conf to user's kube config
-    copy:
-      src: /etc/kubernetes/admin.conf
-      dest: /home/pkv/.kube/config
-      remote_src: yes
-
-  - shell: ls $HOME/.kube
-    register: shell_result2
-  - debug: msg="{{ shell_result2 }}"
-
-  - name: Change kubeconfig file permission
-    file:
-      path: $HOME/.kube/config 
-      owner: "{{ ansible_effective_user_id }}"
-      group: "{{ ansible_effective_group_id }}"
-
-  - shell: cat $HOME/.kube/config
-    register: shell_result3
-  - debug: msg="{{ shell_result3 }}"
-
-  - name: install Pod network
-    become: false
-    shell: kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml >> pod_network_setup.txt
-    args:
-      chdir: $HOME
-      creates: pod_network_setup.txt
+    - name: install Pod network
+      become: false
+      shell: kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml >> pod_network_setup.txt
+      args:
+        chdir: /home/pkv
+        creates: pod_network_setup.txt
