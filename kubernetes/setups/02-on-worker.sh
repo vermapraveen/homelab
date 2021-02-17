@@ -52,7 +52,13 @@ cat <<EOF | sudo tee /etc/docker/daemon.json
   "log-opts": {
     "max-size": "100m"
   },
-  "storage-driver": "overlay2"
+  "storage-driver": "overlay2",
+  "default-address-pools": [
+    {
+      "base": "10.10.0.0/16",
+      "size": 28
+    }
+  ]
 }
 EOF
 sudo mkdir -p /etc/systemd/system/docker.service.d
@@ -71,4 +77,4 @@ sudo systemctl enable kubelet
 # sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
 ### On WORKER
-sudo kubeadm join blue:6443 --token gd6prl.z5mjie1ev9blztos --discovery-token-ca-cert-hash sha256:5d2c8f2ca71ecc1f4acad7ae41072bc92c9eeb5c28b2465167a779e499195583
+kubeadm join blue.pkvnw:6443 --token fio9cg.8id4vs4sitonbcgg   --discovery-token-ca-cert-hash sha256:c77c9b240ea1f459dca366664c0fe94f5d73d7eee8f678022e37f335a445ad07

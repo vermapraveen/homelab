@@ -1,0 +1,80 @@
+- name: "cleanup master"
+  hosts: "k8master"
+  become: true
+  tasks:
+  - name: remove Pod network
+    shell: kubectl delete -f https://docs.projectcalico.org/manifests/calico.yaml
+
+  - name: drain worker nodes
+    shell: kubectl drain "{{item}}" --delete-emptydir-data --force --ignore-daemonsets
+    with_items:
+      - charlie
+      - delta
+
+  # - name: drain delta
+  #   shell: kubectl drain delta --delete-emptydir-data --force --ignore-daemonsets
+
+  - name: Reset all IPv4 iptables rules in all tables and allow all traffic
+    iptables_raw:
+      name: '*'
+      table: '*'
+      state: absent
+
+  # - name: remove workers
+  #   shell: kubectl delete node charlie
+
+  - name: remove workers
+    shell: kubectl delete node "{{item}}" 
+    with_items:
+      - charlie
+      - delta
+
+  - name: kubeadm reset
+    shell: kubeadm reset
+
+  - name: disable docker
+    ansible.builtin.systemd:
+      name: docker  
+      enabled: yes
+
+  - name: stop docker
+    ansible.builtin.systemd:
+      name: docker  
+      state: stop 
+
+  - name: Remove k8s packages
+    apt:
+      pkg: "{{item}}"
+      state: absent
+      purge: yes
+      with_items:
+        - kubeadm
+        - kubectl
+        - kubelet
+        - kubernetes-cni 
+        - kube*
+        - docker-ce 
+        - docker-ce-cli 
+        - containerd.io 
+        - resolvconf
+
+  - name: Clean unwanted olderstuff
+    apt:
+      autoremove: yes
+      purge: yes
+
+  - name: delete k8s and docker files and directories
+    file:
+      path: "{{ item }}"
+      state: absent
+    with_items:
+      - /home/pkv/.kube/config
+      - /etc/kubernetes/admin.conf
+      - ~/.kube
+      - /etc/docker/daemon.json
+      - /etc/systemd/system/docker.service.d
+      - /var/lib/docker
+      - /etc/sysctl.d/kubernetes.conf
+
+  - name: Remove docker route
+    shell: route del -net 10.10.0.0 dev docker0
