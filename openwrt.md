@@ -12,6 +12,27 @@ dd if=/home/pkv/Downloads/openwrt-19.07.6-brcm2708-bcm2709-rpi-2-ext4-sysupgrade
 
 # Setup Internet (wan) 
 
+1. ifconfig
+  a. get device name: like `eth0` etc
+  b. `ifconfig | grep "inet"` --> gives `198.162.1.1`
+2. vi /etc/config/network
+3. update `config interface 'lan'` as below. 
+`
+     config interface 'lan'. 
+         option device 'eth0'. 
+         option proto 'dhcp'  
+`
+4. reboot
+5. Verify `ifconfig | grep "inet"` --> gives `172.17.2.XX`
+6. opkg update
+7. opkg install usbutils
+8. opkg install kmod-usb-net-asix
+9. reboot
+10. go to luci --> Network --> Devices --> Verify `eth1` exist 
+
+
+
+
 # Setup DHCP
 1. vi /etc/config/network
 2. update `config interface 'lan'` / `option ipaddr 198.162.1.1` to -->  `option ipaddr 10.20.30.1`
