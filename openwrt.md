@@ -12,11 +12,12 @@ dd if=/home/pkv/Downloads/openwrt-19.07.6-brcm2708-bcm2709-rpi-2-ext4-sysupgrade
 
 # Setup Internet (wan) 
 
-1. ifconfig
-  a. get device name: like `eth0` etc
-  b. `ifconfig | grep "inet"` --> gives `198.162.1.1`
-2. vi /etc/config/network
-3. update `config interface 'lan'` as below:  
+1. passwd
+2. ifconfig
+3. get device name: like `eth0` etc. 
+4. verify `ifconfig | grep "inet"` --> gives `198.162.1.1`. 
+5. vi /etc/config/network
+6. update `config interface 'lan'` as below:  
 ```
      config interface 'lan'. 
          option device 'eth0'. 
