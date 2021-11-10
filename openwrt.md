@@ -37,19 +37,18 @@ dd if=/home/pkv/Downloads/openwrt-19.07.6-brcm2708-bcm2709-rpi-2-ext4-sysupgrade
     
   6a. create `wan` on `eth0` by updating `config interface 'lan'` as below:  
 ```
-   config interface 'wan'
-       option device 'eth0'
-       option proto 'dhcp'
+config interface 'wan'
+        option device 'eth0'
+        option proto 'dhcp'
 ```
   6b. create `lan` on `eth1` by adding as below:  
 ```
-  config interface 'lan'
-	    option proto 'static'
-	    option ifname 'eth1'
-	    option ipaddr '10.20.30.1'
-	    option netmask '255.255.255.0'
-	    option gateway '172.17.2.1' # this is the internet g/w
-	    option type 'br-lan'
+config interface 'lan'
+	option device 'eth1'
+	option proto 'static'
+	option ipaddr '10.20.30.1'
+	option netmask '255.255.255.0'
+	option ip6assign '60'
 ```
 
 8. reboot
