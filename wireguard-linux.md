@@ -1,9 +1,14 @@
-sudo apt update
-sudo apt install wireguard
-umask 077
-wg genkey | sudo tee /etc/wireguard/private.key
-sudo cat /etc/wireguard/private.key | wg pubkey | sudo tee /etc/wireguard/public.key
-sudo nano /etc/wireguard/wg0.conf
+sudo apt update 
+
+sudo apt install wireguard 
+
+umask 077 
+
+wg genkey | sudo tee /etc/wireguard/private.key 
+
+sudo cat /etc/wireguard/private.key | wg pubkey | sudo tee /etc/wireguard/public.key 
+
+sudo nano /etc/wireguard/wg0.conf 
 
 ```
 [Interface]
