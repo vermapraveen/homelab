@@ -37,6 +37,11 @@ sudo systemctl enable wg-quick@wg0.service
 sudo systemctl start wg-quick@wg0.service
 sudo systemctl status wg-quick@wg0.service
 
+## Azure changes
+
+![image](https://user-images.githubusercontent.com/5779604/147896313-44b14a3f-ec5d-47d2-8e3d-8e0ce6d47106.png)
+
+![image](https://user-images.githubusercontent.com/5779604/147896327-0356def7-9135-408a-bc7a-d9e6afd0f00e.png)
 
 
 
