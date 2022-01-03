@@ -1,3 +1,4 @@
+## Wireguard Configuration
 ```
 sudo apt update 
 sudo apt install wireguard 
@@ -7,7 +8,7 @@ sudo cat /etc/wireguard/private.key | wg pubkey | sudo tee /etc/wireguard/public
 sudo nano /etc/wireguard/wg0.conf 
 ```
 
-# Update as below 
+### Update wg0.conf as below 
 ```
 [Interface]
 Address = 192.168.88.1/24
@@ -21,15 +22,15 @@ PrivateKey = 2J9RxCLOXqS+Mv65LFz+ovItqPMseGKX6ftSgro1XFg=
 PublicKey = EudbkcqXl7xOjQTthGILUbxnXJQE577ZY0XB5O5Cngk=
 AllowedIPs = 192.168.88.2/32
 ```
-sudo nano /etc/sysctl.conf
+### Update /etc/sysctl.conf as below 
 ```
+sudo nano /etc/sysctl.conf
 Update Entry in /etc/sysctl.conf --> net.ipv4.ip_forward=1
 ```
-
+## Linux firewall
+```
 sudo sysctl -p
-
 ip route list default
-
 sudo ufw allow 51820/udp
 sudo ufw allow OpenSSH
 sudo ufw disable
@@ -39,6 +40,7 @@ sudo ufw status
 sudo systemctl enable wg-quick@wg0.service
 sudo systemctl start wg-quick@wg0.service
 sudo systemctl status wg-quick@wg0.service
+```
 
 ## Azure changes
 
