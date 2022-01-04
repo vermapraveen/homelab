@@ -40,7 +40,7 @@ PING google.com (142.250.115.101): 56 data bytes
 ```
 
 ## Setup USB2ToEthernet Adapter
-1. connect USB3ToEthernet adapter with asix chip
+1. connect USB3ToEthernet adapter (asix chip) to USB3 port
 2. ifconfig -a --> ``` should NOT show eth1 interface ```
 3. opkg update
 4. opkg install usbutils
@@ -48,7 +48,8 @@ PING google.com (142.250.115.101): 56 data bytes
 6. reboot
 7. ifconfig -a --> ``` now it should have eth1 interface ```
 
-### Setup lan 
+## Setup lan after setup of USB2ToEthernet Adapter
+1. 
 
 
 ### Others
