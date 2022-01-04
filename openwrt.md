@@ -40,10 +40,13 @@ PING google.com (142.250.115.101): 56 data bytes
 ```
 
 ## Setup USB2ToEthernet Adapter
-1. opkg update
-2. opkg install usbutils
-3. opkg install kmod-usb-net-asix
-4. reboot
+1. connect USB3ToEthernet adapter with asix chip
+2. ifconfig -a --> ``` should NOT show eth1 interface ```
+3. opkg update
+4. opkg install usbutils
+5. opkg install kmod-usb-net-asix-ax88179
+6. reboot
+7. ifconfig -a --> ``` now it should have eth1 interface ```
 
 ### Setup lan 
 
