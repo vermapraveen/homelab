@@ -3,16 +3,52 @@
 ## ubuntu
 dd if=/home/pkv/Downloads/openwrt-19.07.6-brcm2708-bcm2709-rpi-2-ext4-sysupgrade.img.gz of=/dev/mmcblk0 bs=2M conv=fsync
 
-## macOS
-1. diskutil list  
-2. sudo diskutil eraseDisk exFAT OpenWrtOS /dev/disk2  
-3. sudo diskutil unmount /dev/disk2s1
-4. sudo diskutil unmount /dev/disk2s2
-5. sudo diskutil unmount /dev/disk2
-6. sudo dd if=Downloads/openwrt-21.02.1-bcm27xx-bcm2709-rpi-2-ext4-factory.img of=/dev/rdisk2 bs=1m 
+## Prepare Memory Care
+### macOS
+diskutil list 
 
-# Setup Internet (wan) 
+```
+sudo diskutil eraseDisk exFAT OpenWrtOS /dev/disk2
+sudo diskutil unmount /dev/disk2s1
+sudo diskutil unmount /dev/disk2s2
+sudo diskutil unmount /dev/disk2
+sudo dd if=Downloads/openwrt-21.02.1-bcm27xx-bcm2711-rpi-4-ext4-factory.img of=/dev/rdisk2 bs=1m
+```
 
+# Setup In RasPi4B
+## Hardware Connections
+1. Insert cat Cable from 'internet/ Internet' in RasPi4B Ethernet Port
+2. Insert memory Card
+3. Connect Keyboard and Monitor 
+4. boot
+5. ping google.com. You should get below result
+```
+ping: bad address 'google.com'
+```
+## Enable Internet (wan)
+1. update /etc/config/network --> ```vi /etc/config/network```
+```
+config interface 'lan'
+    option ifname 'eth0'
+    option proto 'dhcp'
+```
+2. ping google.com. You should get below result
+```
+PING google.com (142.250.115.101): 56 data bytes
+64 bytes from 142.250.115.101: icmp_seq=0 ttl=110 time=14.885 ms
+64 bytes from 142.250.115.101: icmp_seq=1 ttl=110 time=18.072 ms
+```
+
+## Setup USB2ToEthernet Adapter
+1. opkg update
+2. opkg install usbutils
+3. opkg install kmod-usb-net-asix
+4. reboot
+
+### Setup lan 
+
+
+### Others
 1. passwd
 2. ifconfig
 3. get device name: like `eth0` etc. 
