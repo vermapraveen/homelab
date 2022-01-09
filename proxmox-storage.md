@@ -14,3 +14,11 @@ vgcreate cluster-node-storage /dev/sda1
 vgextend cluster-node-storage /dev/sda2
 vgextend cluster-node-storage /dev/sda3
 ```
+
+Revert above pv and vg
+```
+vgremove cluster-node-storage
+pvremove /dev/sda3
+pvremove /dev/sda2
+pvremove /dev/sda1
+```
