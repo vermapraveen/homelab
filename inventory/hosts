@@ -1,19 +1,19 @@
 [ubuntu]
-blue.pkvnw ansible_python_interpreter='python3'
-charlie.pkvnw ansible_python_interpreter='python3'
-delta.pkvnw ansible_python_interpreter='python3'
-sierra.pkvnw ansible_python_interpreter='python3'
+blue.lan ansible_python_interpreter='python3'
+charlie.lan ansible_python_interpreter='python3'
+delta.lan ansible_python_interpreter='python3'
+#sierra.pkvnw ansible_python_interpreter='python3'
 #park.pkvnw ansible_python_interpreter='python3'
 #greenwall.pkvnw ansible_python_interpreter='python3'
 
 [k8sCommonOnUbuntu]
-blue.pkvnw ansible_python_interpreter='python3'
-charlie.pkvnw ansible_python_interpreter='python3'
-delta.pkvnw ansible_python_interpreter='python3'
+blue.lan ansible_python_interpreter='python3'
+charlie.lan ansible_python_interpreter='python3'
+delta.lan ansible_python_interpreter='python3'
 
 [k8master]
-blue.pkvnw ansible_python_interpreter='python3'
+blue.lan ansible_python_interpreter='python3'
 
 [k8worker]
-charlie.pkvnw ansible_python_interpreter='python3'
-delta.pkvnw ansible_python_interpreter='python3'
+charlie.lan ansible_python_interpreter='python3'
+delta.lan ansible_python_interpreter='python3'
