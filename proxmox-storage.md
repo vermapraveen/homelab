@@ -1,3 +1,15 @@
+List storage status:
+```
+pvs #Physical Volume(PV)
+vgs #Volume Group (VG)
+lvs #Logical Volumes (LV) inside VG
+pvesm status #Proxmox VE Storage Manager
+```
+
+## From Existing Disk
+``` xx ```
+
+## From New Disk
 Find newly added disk:  
 ```lsblk -o +SERIAL```
 
