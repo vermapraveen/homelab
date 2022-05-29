@@ -137,6 +137,7 @@ Configure firewall
 ```
 uci rename firewall.@zone[0]="lan"
 uci rename firewall.@zone[1]="wan"
+uci rename firewall.@forwarding[0]="lan_wan"
 uci del_list firewall.lan.network="${WG_IF}"
 uci add_list firewall.lan.network="${WG_IF}"
 uci -q delete firewall.wg
