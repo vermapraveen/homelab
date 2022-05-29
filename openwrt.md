@@ -98,3 +98,8 @@ config interface 'lan'
 # Setup USB2ToWireless
 
 # Setup VPN (Wireguard)
+
+# Upgrade all packages
+```opkg list-upgradable | cut -f 1 -d ' ' | xargs -r opkg upgrade  ```
+
+
