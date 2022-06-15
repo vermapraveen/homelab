@@ -1,0 +1,8 @@
+
+## Add a disk to NAS
+
+```
+lsblk -o +MODEL,SERIAL
+ls /dev/disk/by-id/
+ata-WDC_WD20PURZ-85AKKY0_WD-WX42DC087TZ8
+```
