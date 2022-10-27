@@ -154,4 +154,32 @@ uci commit firewall
 # Upgrade all packages
 ```opkg list-upgradable | cut -f 1 -d ' ' | xargs -r opkg upgrade  ```
 
+# setup ddns
+```
+Login to https://www.duckdns.org/ and create domain
+ssh to openwrt router
+
+opkg update
+opkg install ddns-scripts
+
+edit the config at /etc/config/ddns as below 
+config service "duckdns"
+        option enabled          "1"
+        option domain           "<YOUR DOMAIN>.duckdns.org"
+        option username         "<YOUR DOMAIN>"
+        option password         "<YOUR TOKEN FROM duckdns.org>"
+        option ip_source        "network"
+        option ip_network       "wan"
+        option force_interval   "72"
+        option force_unit       "hours"
+        option check_interval   "10"
+        option check_unit       "minutes"
+        option update_url       "http://www.duckdns.org/update?domains=[USERNAME]&token=[PASSWORD]&ip=[IP]"
+	
+Login to openwrt UI
+Go to Services > Dynamic DNS
+Reload or restart "duckdns" Service
+Verify IP is getting update in duckdns.org UI 
+```
+
 
