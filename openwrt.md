@@ -159,10 +159,13 @@ uci commit firewall
 Login to https://www.duckdns.org/ and create domain
 ssh to openwrt router
 
+Install below
+-------------
 opkg update
 opkg install ddns-scripts
 
 edit the config at /etc/config/ddns as below 
+--------------------------------------------
 config service "duckdns"
         option enabled          "1"
         option domain           "<YOUR DOMAIN>.duckdns.org"
