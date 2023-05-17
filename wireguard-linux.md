@@ -54,3 +54,11 @@ sudo systemctl status wg-quick@wg0.service
 ```
 sudo nano /etc/wireguard/wg0.conf
 ```
+
+```
+aws_ubuntu_ind: 05/17/2023
+ubuntu@ip-172-31-92-62:~$ sudo cat /etc/wireguard/public.key
+WC3MD+3PkaPxxLe2tNk3v6PTLOCXpnntLp/wvCzw1WY=
+ubuntu@ip-172-31-92-62:~$ sudo cat /etc/wireguard/private.key
+wLqeur7Y1VcZm7lPNnNyhdcDFLjyvCeXnP3wDIg+N34=
+```
