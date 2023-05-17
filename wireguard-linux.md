@@ -62,3 +62,5 @@ WC3MD+3PkaPxxLe2tNk3v6PTLOCXpnntLp/wvCzw1WY=
 ubuntu@ip-172-31-92-62:~$ sudo cat /etc/wireguard/private.key
 wLqeur7Y1VcZm7lPNnNyhdcDFLjyvCeXnP3wDIg+N34=
 ```
+
+iphone14: public key: 70akiVs7I8YvbZB7kqV1sl5LK2VlOZ4xe4y0ajzY1TE=
